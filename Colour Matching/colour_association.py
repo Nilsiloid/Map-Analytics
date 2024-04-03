@@ -1,7 +1,37 @@
 # the input to this code is from segmentation of the map image.
 # the input file contains states and their average colour value in RGB format.
 
-# Discrete Legends
+# Discrete Legends -
+
+import numpy as np
+
+def piecewise_linear_interpolation(C, V0, V1, C0, C1):
+    # Normalize RGB colors to the range [0, 1]
+    C_norm = np.array(C) / 255.0
+    C0_norm = np.array(C0) / 255.0
+    C1_norm = np.array(C1) / 255.0
+    
+    # Calculate interpolated value using normalized colors
+    V_norm = V0 + (V1 - V0) * np.linalg.norm(C_norm - C0_norm) / np.linalg.norm(C1_norm - C0_norm)
+    
+    # Reverse normalization to obtain final integer value
+    # V = int(round(V_norm))
+    V = V_norm
+    return V
+
+def rgb_to_cmyk(r, g, b):
+    # Convert RGB to CMYK
+    c = 1 - (r / 255.0)
+    m = 1 - (g / 255.0)
+    y = 1 - (b / 255.0)
+    k = min(c, m, y)
+    if k == 1:  # Avoid division by zero
+        c = m = y = 0
+    else:
+        c = (c - k) / (1 - k)
+        m = (m - k) / (1 - k)
+        y = (y - k) / (1 - k)
+    return c, m, y, k
 
 # Read File A
 file_a_data = []
@@ -60,21 +90,34 @@ elif map_type == "Colour Bar":
             legend_1, color_1, value_1 = file_b_data[i][1], file_b_data[i][2], file_b_data[i][3]
             legend_2, color_2, value_2 = file_b_data[i + 1][1], file_b_data[i + 1][2], file_b_data[i + 1][3]
 
+            # V = piecewise_linear_interpolation(state_color, value_1, value_2, color_1, color_2)
+            # print(V)
+            # assigned_value = (assigned_value*(i) + V)/(i+1)
+
+            # c,m,y,k = rgb_to_cmyk(state_color[0], state_color[1], state_color[2])
+
+            # V_new_c = (c - color_2[0]) * (value_1 - value_2) / (color_1[0] - color_2[0]) + value_1
+            # V_new_m = (m - color_2[1]) * (value_1 - value_2) / (color_1[1] - color_2[1]) + value_1
+            # V_new_y = (y - color_2[2]) * (value_1 - value_2) / (color_1[2] - color_2[2]) + value_1
+            # V_new_k = (k - color_2[2]) * (value_1 - value_2) / (color_1[2] - color_2[2]) + value_1
+
+            # V_new = (V_new_c+V_new_m+V_new_y+V_new_k)/4
+            
             # Calculate V using the formula
             V_new_R = (state_color[0] - color_2[0]) * (value_1 - value_2) / (color_1[0] - color_2[0]) + value_1
             V_new_G = (state_color[1] - color_2[1]) * (value_1 - value_2) / (color_1[1] - color_2[1]) + value_1
             V_new_B = (state_color[2] - color_2[2]) * (value_1 - value_2) / (color_1[2] - color_2[2]) + value_1
 
-            # V_new = (0.33*V_new_R+0.59*V_new_G+0.11*V_new_B)
-            V_new = (V_new_R+V_new_G+V_new_B)/3
-            print(V_new_R)
-            print(V_new_G)
-            print(V_new_B)
-            print(V_new)
-            assigned_value = (assigned_value*(i) + V_new)/(i+1)
-            print("separator1")
+            # # V_new = (0.33*V_new_R+0.59*V_new_G+0.11*V_new_B)
+            # V_new = (V_new_R+V_new_G+V_new_B)/3
+            # print(V_new_R)
+            # print(V_new_G)
+            # print(V_new_B)
+            # print(V_new)
+            # assigned_value = (assigned_value*(i) + V_new)/(i+1)
+            # print("separator1")
         output_data.append((state, assigned_value, unit))
-        print("separator")
+        # print("separator")
 
 # print(output_data)
 
