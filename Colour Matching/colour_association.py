@@ -19,18 +19,18 @@ def piecewise_linear_interpolation(C, V0, V1, C0, C1):
     V = V_norm
     return V
 
+# Convert RGB to CMYK
 def rgb_to_cmyk(r, g, b):
-    # Convert RGB to CMYK
-    c = 1 - (r / 255.0)
-    m = 1 - (g / 255.0)
-    y = 1 - (b / 255.0)
-    k = min(c, m, y)
+    r_new =  (r / 255.0)
+    g_new =  (g / 255.0)
+    b_new =  (b / 255.0)
+    k = 1- max(r_new, g_new, b_new)
     if k == 1:  # Avoid division by zero
         c = m = y = 0
     else:
-        c = (c - k) / (1 - k)
-        m = (m - k) / (1 - k)
-        y = (y - k) / (1 - k)
+        c = (1 - r_new - k) / (1 - k)
+        m = (1 - g_new - k) / (1 - k)
+        y = (1 - b_new - k) / (1 - k)
     return c, m, y, k
 
 # Read File A
@@ -87,33 +87,37 @@ elif map_type == "Colour Bar":
         assigned_value = -1
         for i in range(len(file_b_data) - 1):
             # Extract legend numbers, colors, and average values for the current and next entry
-            legend_1, color_1, value_1 = file_b_data[i][1], file_b_data[i][2], file_b_data[i][3]
-            legend_2, color_2, value_2 = file_b_data[i + 1][1], file_b_data[i + 1][2], file_b_data[i + 1][3]
+            legend_1, colour_1, value_1 = file_b_data[i][1], file_b_data[i][2], file_b_data[i][3]
+            legend_2, colour_2, value_2 = file_b_data[i + 1][1], file_b_data[i + 1][2], file_b_data[i + 1][3]
 
             # V = piecewise_linear_interpolation(state_color, value_1, value_2, color_1, color_2)
             # print(V)
             # assigned_value = (assigned_value*(i) + V)/(i+1)
 
-            # c,m,y,k = rgb_to_cmyk(state_color[0], state_color[1], state_color[2])
+            c_state,m_state,y_state,k_state = rgb_to_cmyk(state_color[0], state_color[1], state_color[2])
+            c_colour_1,m_colour_1,y_colour_1,k_colour_1 = rgb_to_cmyk(colour_1[0], colour_1[1], colour_1[2])
+            c_colour_2,m_colour_2,y_colour_2,k_colour_2 = rgb_to_cmyk(colour_2[0], colour_2[1], colour_2[2])
 
-            # V_new_c = (c - color_2[0]) * (value_1 - value_2) / (color_1[0] - color_2[0]) + value_1
-            # V_new_m = (m - color_2[1]) * (value_1 - value_2) / (color_1[1] - color_2[1]) + value_1
-            # V_new_y = (y - color_2[2]) * (value_1 - value_2) / (color_1[2] - color_2[2]) + value_1
-            # V_new_k = (k - color_2[2]) * (value_1 - value_2) / (color_1[2] - color_2[2]) + value_1
+            print(c_state, m_state, y_state, k_state)
+            print(c_colour_1, m_colour_1, y_colour_1, k_colour_1)
+            print(c_colour_2, m_colour_2, y_colour_2, k_colour_2)
 
-            # V_new = (V_new_c+V_new_m+V_new_y+V_new_k)/4
+            V_new_c = (c_state - c_colour_2) * (value_1 - value_2) / (c_colour_1 - c_colour_2) + value_1
+            V_new_m = (m_state - m_colour_2) * (value_1 - value_2) / (m_colour_1 - m_colour_2) + value_1
+            V_new_y = (y_state - y_colour_2) * (value_1 - value_2) / (y_colour_1 - y_colour_2) + value_1
+            V_new_k = (k_state - k_colour_2) * (value_1 - value_2) / (k_colour_1 - k_colour_2) + value_1
+
+            V_new = (V_new_c+V_new_m+V_new_y+V_new_k)/4
+            assigned_value = (assigned_value*(i) + V_new)/(i+1)
             
             # Calculate V using the formula
-            V_new_R = (state_color[0] - color_2[0]) * (value_1 - value_2) / (color_1[0] - color_2[0]) + value_1
-            V_new_G = (state_color[1] - color_2[1]) * (value_1 - value_2) / (color_1[1] - color_2[1]) + value_1
-            V_new_B = (state_color[2] - color_2[2]) * (value_1 - value_2) / (color_1[2] - color_2[2]) + value_1
+            # V_new_R = (state_color[0] - color_2[0]) * (value_1 - value_2) / (color_1[0] - color_2[0]) + value_1
+            # V_new_G = (state_color[1] - color_2[1]) * (value_1 - value_2) / (color_1[1] - color_2[1]) + value_1
+            # V_new_B = (state_color[2] - color_2[2]) * (value_1 - value_2) / (color_1[2] - color_2[2]) + value_1
 
-            # # V_new = (0.33*V_new_R+0.59*V_new_G+0.11*V_new_B)
+            # V_new = (0.33*V_new_R+0.59*V_new_G+0.11*V_new_B)
             # V_new = (V_new_R+V_new_G+V_new_B)/3
-            # print(V_new_R)
-            # print(V_new_G)
-            # print(V_new_B)
-            # print(V_new)
+            # print(V_new_R, V_new_G, V_new_B, "----------", V_new)
             # assigned_value = (assigned_value*(i) + V_new)/(i+1)
             # print("separator1")
         output_data.append((state, assigned_value, unit))
