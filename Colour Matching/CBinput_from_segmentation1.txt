@@ -1,0 +1,7 @@
+Colour Bar
+['California', 110, 49, 78]
+['Colorado', 118, 49, 78]
+['Connecticut', 173, 73, 100]
+['Delaware', 207, 148, 126]
+['Florida', 118, 59, 78]
+['Idaho', 148, 69, 90]

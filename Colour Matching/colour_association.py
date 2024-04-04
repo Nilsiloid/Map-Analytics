@@ -19,25 +19,11 @@ def piecewise_linear_interpolation(C, V0, V1, C0, C1):
     V = V_norm
     return V
 
-# Convert RGB to CMYK
-def rgb_to_cmyk(r, g, b):
-    r_new =  (r / 255.0)
-    g_new =  (g / 255.0)
-    b_new =  (b / 255.0)
-    k = 1- max(r_new, g_new, b_new)
-    if k == 1:  # Avoid division by zero
-        c = m = y = 0
-    else:
-        c = (1 - r_new - k) / (1 - k)
-        m = (1 - g_new - k) / (1 - k)
-        y = (1 - b_new - k) / (1 - k)
-    return c, m, y, k
-
 # Read File A
 file_a_data = []
 map_type = ""
 
-with open('input_from_segmentation.txt', 'r') as file_a:
+with open('CBinput_from_segmentation1.txt', 'r') as file_a:
     map_type = file_a.readline().strip()
     # print(map_type)
     for line in file_a:
@@ -81,6 +67,12 @@ if map_type == "Discrete Legends":
                 assigned_value = average_value
                 assigned_unit = unit
         output_data.append((state, assigned_value, unit))
+    
+    with open('DetectedValuesDL.txt', 'w') as output_file:
+        # output_file.write(f"{map_type}\n")
+        for state, assigned_value, assigned_unit in output_data:
+            output_file.write(f"{state}: {assigned_value}, {assigned_unit}\n")
+
 elif map_type == "Colour Bar":
     print(map_type)
     for state, state_color in file_a_data:
@@ -89,115 +81,24 @@ elif map_type == "Colour Bar":
             # Extract legend numbers, colors, and average values for the current and next entry
             legend_1, colour_1, value_1 = file_b_data[i][1], file_b_data[i][2], file_b_data[i][3]
             legend_2, colour_2, value_2 = file_b_data[i + 1][1], file_b_data[i + 1][2], file_b_data[i + 1][3]
-
-            # V = piecewise_linear_interpolation(state_color, value_1, value_2, color_1, color_2)
-            # print(V)
-            # assigned_value = (assigned_value*(i) + V)/(i+1)
-
-            c_state,m_state,y_state,k_state = rgb_to_cmyk(state_color[0], state_color[1], state_color[2])
-            c_colour_1,m_colour_1,y_colour_1,k_colour_1 = rgb_to_cmyk(colour_1[0], colour_1[1], colour_1[2])
-            c_colour_2,m_colour_2,y_colour_2,k_colour_2 = rgb_to_cmyk(colour_2[0], colour_2[1], colour_2[2])
-
-            print(c_state, m_state, y_state, k_state)
-            print(c_colour_1, m_colour_1, y_colour_1, k_colour_1)
-            print(c_colour_2, m_colour_2, y_colour_2, k_colour_2)
-
-            V_new_c = (c_state - c_colour_2) * (value_1 - value_2) / (c_colour_1 - c_colour_2) + value_1
-            V_new_m = (m_state - m_colour_2) * (value_1 - value_2) / (m_colour_1 - m_colour_2) + value_1
-            V_new_y = (y_state - y_colour_2) * (value_1 - value_2) / (y_colour_1 - y_colour_2) + value_1
-            V_new_k = (k_state - k_colour_2) * (value_1 - value_2) / (k_colour_1 - k_colour_2) + value_1
-
-            V_new = (V_new_c+V_new_m+V_new_y+V_new_k)/4
-            assigned_value = (assigned_value*(i) + V_new)/(i+1)
             
-            # Calculate V using the formula
-            # V_new_R = (state_color[0] - color_2[0]) * (value_1 - value_2) / (color_1[0] - color_2[0]) + value_1
-            # V_new_G = (state_color[1] - color_2[1]) * (value_1 - value_2) / (color_1[1] - color_2[1]) + value_1
-            # V_new_B = (state_color[2] - color_2[2]) * (value_1 - value_2) / (color_1[2] - color_2[2]) + value_1
+            # Calculate alpha using the formula
+            A_R = (state_color[0] - colour_2[0]) / (colour_1[0] - colour_2[0])
+            A_G = (state_color[1] - colour_2[1]) / (colour_1[1] - colour_2[1])
+            A_B = (state_color[2] - colour_2[2]) / (colour_1[2] - colour_2[2])
 
-            # V_new = (0.33*V_new_R+0.59*V_new_G+0.11*V_new_B)
-            # V_new = (V_new_R+V_new_G+V_new_B)/3
-            # print(V_new_R, V_new_G, V_new_B, "----------", V_new)
-            # assigned_value = (assigned_value*(i) + V_new)/(i+1)
+            A = (A_R + A_G + A_B)/3
+            # print(A)
+            if 0<=A and A<=1:
+                assigned_value = A*(value_1-value_2)+value_2
+
+            # print(assigned_value)
             # print("separator1")
         output_data.append((state, assigned_value, unit))
         # print("separator")
 
-# print(output_data)
-
-# Write output to a file
-with open('DetectedValuesCB.txt', 'w') as output_file:
-    for state, assigned_value, assigned_unit in output_data:
-        output_file.write(f"{state}: {assigned_value}, {assigned_unit}\n")
-
-
-# # Read input file with state values
-# def read_input_file(input_file):
-#     state_data = []
-#     with open(input_file, 'r') as file:
-#         for line in file:
-#             state, r, g, b = line.strip().split(',')
-#             state_data.append((state, int(r), int(g), int(b)))
-#     return state_data
-
-# # Function to read RGB values from input file
-# def read_rgb_values(input_file):
-#     rgb_values = []
-#     with open(input_file, 'r') as file:
-#         for line in file:
-#             # Split line and convert RGB values to integers
-#             rgb = [int(x) for x in line.strip().split()]
-#             rgb_values.append(rgb)
-#     return rgb_values
-        
-# with open('input_from_segmentation.txt', 'r') as file_a:
-#     for line in file_a:
-#         line = line.strip()[1:-1]  # Remove leading '[' and trailing ']'
-#         parts = line.split(', ')
-#         state = parts[0]
-#         color = eval(parts[1])  # Evaluate the string representation of the list
-#         file_a_data.append((state, color))
-
-# # Match RGB values with existing list
-# def match_rgb_values(state_data, rgb_list):
-#     matched_data = []
-#     for state, r, g, b in state_data:
-#         double_value = None
-#         for rgb, value in rgb_list:
-#             if rgb == (r, g, b):
-#                 double_value = value * 2
-#                 break
-#         matched_data.append((state, double_value))
-#     return matched_data
-
-# # Write output to file
-# def write_output_file(output_file, matched_data):
-#     with open(output_file, 'w') as file:
-#         for state, double_value in matched_data:
-#             file.write(f'{state},{double_value}\n')
-
-# # Main function
-# def main(input_file, output_file):
-#     # List of RGB values and corresponding double values
-#     rgb_list = [
-#         ((255, 0, 0), 10),
-#         ((0, 255, 0), 20),
-#         ((0, 0, 255), 30),
-#     ]
-
-#     # Read input file
-#     state_data = read_input_file(input_file)
-
-#     input_file = 'rgb_values.txt'  # Replace with your input file path
-#     rgb_list = read_rgb_values(input_file)
-
-#     # Match RGB values with existing list
-#     matched_data = match_rgb_values(state_data, rgb_list)
-
-#     # Write output to file
-#     write_output_file(output_file, matched_data)
-
-# # Example usage:
-# input_file = 'input_from_segmentation.txt'  # Replace with your input file path
-# output_file = 'output.txt'  # Replace with your output file path
-# main(input_file, output_file)
+    # Write output to a file
+    with open('DetectedValuesCB.txt', 'w') as output_file:
+        # output_file.write(f"{map_type}\n")
+        for state, assigned_value, assigned_unit in output_data:
+            output_file.write(f"{state}: {assigned_value}, {assigned_unit}\n")
