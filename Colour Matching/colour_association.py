@@ -23,7 +23,7 @@ def piecewise_linear_interpolation(C, V0, V1, C0, C1):
 file_a_data = []
 map_type = ""
 
-with open('Input_files/CBinput_from_segmentation2.txt', 'r') as file_a:
+with open('Input_files/DLinput_from_segmentation1.txt', 'r') as file_a:
     map_type = file_a.readline().strip()
     # print(map_type)
     for line in file_a:
@@ -50,7 +50,7 @@ with open('Input_files/CBinput_from_segmentation2.txt', 'r') as file_a:
 
 # Read File B
 file_b_data = []
-with open('Input_files/test_OCR_output_CB2.txt', 'r') as file_b:
+with open('Input_files/test_OCR_output_DL1.txt', 'r') as file_b:
     for line in file_b:
         line = line.strip()[1:-1]  # Remove leading '[' and trailing ']'
         parts = line.split(', ')
@@ -58,8 +58,12 @@ with open('Input_files/test_OCR_output_CB2.txt', 'r') as file_b:
         legend_num = int(parts[1])
         color = (int(parts[2]),int(parts[3]),int(parts[4]))  # Evaluate the string representation of the list
         # print(color)
-        average_value = float(parts[5])
+        if parts[5] != "'N/A'":
+            average_value = float(parts[5])
+        else:
+            average_value = -1
         unit = parts[6]
+        print(unit)
         file_b_data.append((map_num, legend_num, color, average_value, unit))
 
 output_data = []
@@ -78,7 +82,9 @@ if map_type == "Discrete Legends":
                 min_distance = distance
                 assigned_value = average_value
                 assigned_unit = unit
-        output_data.append((state, assigned_value, unit))
+        output_data.append((state, assigned_value, assigned_unit))
+
+    print(output_data)
     
     with open('Output_files/DetectedValuesDL.txt', 'w') as output_file:
         # output_file.write(f"{map_type}\n")
