@@ -23,7 +23,7 @@ def piecewise_linear_interpolation(C, V0, V1, C0, C1):
 file_a_data = []
 map_type = ""
 
-with open('CBinput_from_segmentation1.txt', 'r') as file_a:
+with open('Input_files/CBinput_from_segmentation2.txt', 'r') as file_a:
     map_type = file_a.readline().strip()
     # print(map_type)
     for line in file_a:
@@ -34,11 +34,23 @@ with open('CBinput_from_segmentation1.txt', 'r') as file_a:
         # print(color)
         file_a_data.append((state, color))
 
+# test code for Discrete Legends Input
+# with open('Input_files/DLinput_from_segmentation.txt', 'r') as file_a:
+#     map_type = file_a.readline().strip()
+#     # print(map_type)
+#     for line in file_a:
+#         line = line.strip()[1:-1]  # Remove leading '[' and trailing ']'
+#         parts = line.split(', ')
+#         state = parts[0]
+#         color = (int(parts[1]), int(parts[2]), int(parts[3]))
+#         # print(color)
+#         file_a_data.append((state, color))
+
 # print(file_a_data)
 
 # Read File B
 file_b_data = []
-with open('PaddleOCR_output_test.txt', 'r') as file_b:
+with open('Input_files/test_OCR_output_CB2.txt', 'r') as file_b:
     for line in file_b:
         line = line.strip()[1:-1]  # Remove leading '[' and trailing ']'
         parts = line.split(', ')
@@ -68,7 +80,7 @@ if map_type == "Discrete Legends":
                 assigned_unit = unit
         output_data.append((state, assigned_value, unit))
     
-    with open('DetectedValuesDL.txt', 'w') as output_file:
+    with open('Output_files/DetectedValuesDL.txt', 'w') as output_file:
         # output_file.write(f"{map_type}\n")
         for state, assigned_value, assigned_unit in output_data:
             output_file.write(f"{state}: {assigned_value}, {assigned_unit}\n")
@@ -91,6 +103,7 @@ elif map_type == "Colour Bar":
             # print(A)
             if 0<=A and A<=1:
                 assigned_value = A*(value_1-value_2)+value_2
+                print(state, assigned_value)
 
             # print(assigned_value)
             # print("separator1")
@@ -98,7 +111,7 @@ elif map_type == "Colour Bar":
         # print("separator")
 
     # Write output to a file
-    with open('DetectedValuesCB.txt', 'w') as output_file:
+    with open('Output_files/DetectedValuesCB.txt', 'w') as output_file:
         # output_file.write(f"{map_type}\n")
         for state, assigned_value, assigned_unit in output_data:
             output_file.write(f"{state}: {assigned_value}, {assigned_unit}\n")

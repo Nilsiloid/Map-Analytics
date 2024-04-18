@@ -1,6 +1,0 @@
-'California': 6.53921568627451, 'M'
-'Colorado': 6.5, 'M'
-'Connecticut': 5.638888888888889, 'M'
-'Delaware': 4.5, 'M'
-'Florida': 6.416666666666667, 'M'
-'Idaho': 6.0, 'M'
