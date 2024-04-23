@@ -23,7 +23,7 @@ def piecewise_linear_interpolation(C, V0, V1, C0, C1):
 file_a_data = []
 map_type = ""
 
-with open('Input_files/DLinput_from_segmentation1.txt', 'r') as file_a:
+with open('Input_files/DLinput_from_segmentation.txt', 'r') as file_a:
     map_type = file_a.readline().strip()
     # print(map_type)
     for line in file_a:
@@ -50,7 +50,7 @@ with open('Input_files/DLinput_from_segmentation1.txt', 'r') as file_a:
 
 # Read File B
 file_b_data = []
-with open('Input_files/test_OCR_output_DL1.txt', 'r') as file_b:
+with open('Input_files/test_OCR_output_DL.txt', 'r') as file_b:
     for line in file_b:
         line = line.strip()[1:-1]  # Remove leading '[' and trailing ']'
         parts = line.split(', ')
