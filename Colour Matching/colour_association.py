@@ -51,6 +51,7 @@ with open('Input_files/DLinput_from_segmentation.txt', 'r') as file_a:
 # Read File B
 file_b_data = []
 with open('Input_files/test_OCR_output_DL.txt', 'r') as file_b:
+    map_title = file_b.readline().strip()
     for line in file_b:
         line = line.strip()[1:-1]  # Remove leading '[' and trailing ']'
         parts = line.split(', ')
@@ -87,7 +88,7 @@ if map_type == "Discrete Legends":
     print(output_data)
     
     with open('Output_files/DetectedValuesDL.txt', 'w') as output_file:
-        # output_file.write(f"{map_type}\n")
+        output_file.write(f"{map_title}\n")
         for state, assigned_value, assigned_unit in output_data:
             output_file.write(f"{state}: {assigned_value}, {assigned_unit}\n")
 
