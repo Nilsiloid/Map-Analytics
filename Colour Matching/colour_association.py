@@ -7,16 +7,19 @@ import numpy as np
 import pandas as pd
 
 df = pd.read_csv('Result.csv')
-# ocr_df = pd.read_csv("OCR_output.csv")
+ocr_df = pd.read_csv("OCR_output.csv")
 seg_df = pd.read_csv("Segmentation_output.csv")
+
+output_data = []
+data_a = []
+data_b = []
 
 map_type = ""
 map_title = ""
 map_name = ""
 
-data_a = []
-rows, cols = seg_df.shape
 
+rows, cols = seg_df.shape
 # iterating through each row and selecting
 # 'Class Name' and 'RGB Colour' column respectively.
 for row in seg_df.itertuples():
@@ -25,25 +28,19 @@ for row in seg_df.itertuples():
     color = row[6]
     data_a.append((file_name, state, color))
 
-# File B stores the data from the OCR input
-# file_b_data = []
-# with open('Input_files/test_OCR_output_DL.txt', 'r') as file_b:
-#     map_title = file_b.readline().strip()
-#     for line in file_b:
-#         line = line.strip()[1:-1]  # Remove leading '[' and trailing ']'
-#         parts = line.split(', ')
-#         map_num = parts[0]
-#         legend_num = int(parts[1])
-#         color = (int(parts[2]),int(parts[3]),int(parts[4]))  # Evaluate the string representation of the list
-#         # print(color)
-#         if parts[5] != "'N/A'":
-#             average_value = float(parts[5])
-#         else:
-#             average_value = -1
-#         unit = parts[6]
-#         # print(unit)
-#         file_b_data.append((map_num, legend_num, color, average_value, unit))
-
+rows, cols = ocr_df.shape
+for row in ocr_df.itertuples():
+    file_name = row[1]
+    map_type = row[2]
+    map_title = row[3]
+    color = row[4]
+    value = row[5]
+    if value != "'N/A'":
+        average_value = float(value)
+    else:
+        average_value = 0
+    unit = row[6]
+    data_b.append(file_name, map_type, map_title, color, average_value, unit)
 
 # Performing colour association/matching to assign values to each state present in the map image, hence preparing data for analysis.
 # The logic used for the 2 different types of map images is different, hence using the data stored in variable map_type, we have separated out the 2 algorithms.
@@ -56,12 +53,12 @@ for row in seg_df.itertuples():
 
 if map_type == "Discrete Legends":
     print(map_type)
-    for state, state_color in file_a_data:
+    for filename, state, state_color in data_a:
         min_distance = float('inf')
         assigned_value = None
         assigned_unit = None
-        for map_num, legend_num, map_color, average_value, unit in file_b_data:
-            # calculatin Euclidean distance
+        for file_name, map_type, map_title, color, average_value, unit in data_b:
+            # calculating Euclidean distance
             distance = sum((c1 - c2) ** 2 for c1, c2 in zip(state_color, map_color))
             if distance < min_distance:
                 min_distance = distance
@@ -73,12 +70,12 @@ if map_type == "Discrete Legends":
 
 elif map_type == "Colour Bar":
     print(map_type)
-    for state, state_color in file_a_data:
+    for state, state_color in data_a:
         assigned_value = 0
-        for i in range(len(file_b_data) - 1):
+        for i in range(len(data_b) - 1):
             # Extract legend numbers, colors, and average values for the current and next entry
-            legend_1, colour_1, value_1 = file_b_data[i][1], file_b_data[i][2], file_b_data[i][3]
-            legend_2, colour_2, value_2 = file_b_data[i + 1][1], file_b_data[i + 1][2], file_b_data[i + 1][3]
+            legend_1, colour_1, value_1 = data_b[i][1], data_b[i][2], data_b[i][3]
+            legend_2, colour_2, value_2 = data_b[i + 1][1], data_b[i + 1][2], data_b[i + 1][3]
             
             # Calculate alpha using the formula
             A_R = (state_color[0] - colour_2[0]) / (colour_1[0] - colour_2[0])
