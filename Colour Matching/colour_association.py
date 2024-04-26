@@ -7,21 +7,20 @@ import numpy as np
 import pandas as pd
 
 df = pd.read_csv('Result.csv')
-ocr_df = pd.read_csv("OCR_output.csv")
-seg_df = pd.read_csv("Segmentation_output.csv")
+ocr_df = pd.read_csv("Colour Matching/Input_Files/OCR_output.csv")
+seg_df = pd.read_csv("Colour Matching/Input_Files/Segmentation_output.csv")
 
 output_data = []
 data_a = []
 data_b = []
 
-map_type = ""
-map_title = ""
-map_name = ""
-
+mapType = ""
+mapTitle = ""
+mapName = ""
 
 rows, cols = seg_df.shape
 # iterating through each row and selecting
-# 'Class Name' and 'RGB Colour' column respectively.
+# 'File Name', 'State' and 'RGB Colour' column respectively.
 for row in seg_df.itertuples():
     file_name = row[1]
     state = row[2]
@@ -29,6 +28,8 @@ for row in seg_df.itertuples():
     data_a.append((file_name, state, color))
 
 rows, cols = ocr_df.shape
+# iterating through each row and selecting
+# 'File Name', 'Map Type', 'Map Title', 'RGB Colour', 'Value' and 'Unit' column respectively.
 for row in ocr_df.itertuples():
     file_name = row[1]
     map_type = row[2]
@@ -51,31 +52,31 @@ for row in ocr_df.itertuples():
 # In images containing Colour Bar, the colour associated with the states could lie anywhere in the colour bar and hence, we leverage the piecewise linear
 # interpolation method to obtain the value corresponding to each state.
 
-if map_type == "Discrete Legends":
-    print(map_type)
-    for filename, state, state_color in data_a:
+for file_name, state, state_color in data_a:
+    for file, map_type, map_title, color, average_value, unit in data_b:
+        numerical_data=[]
+        if file_name == file:
+            mapType = map_type
+            numerical_data.append(map_title, map_type, color, average_value, unit)
+    if mapType == "Discrete Legends":
         min_distance = float('inf')
         assigned_value = None
         assigned_unit = None
-        for file_name, map_type, map_title, color, average_value, unit in data_b:
+        for map_title, map_type, color, average_value, unit in numerical_data:
             # calculating Euclidean distance
-            distance = sum((c1 - c2) ** 2 for c1, c2 in zip(state_color, map_color))
+            distance = sum((c1 - c2) ** 2 for c1, c2 in zip(state_color, color))
             if distance < min_distance:
                 min_distance = distance
                 assigned_value = average_value
                 assigned_unit = unit
         output_data.append((state, assigned_value, assigned_unit))
-
-    print(output_data)
-
-elif map_type == "Colour Bar":
-    print(map_type)
-    for state, state_color in data_a:
+    elif mapType == "Colour Bar":
         assigned_value = 0
-        for i in range(len(data_b) - 1):
+        assigned_unit = numerical_data[0][4]
+        for i in range(len(numerical_data) - 1):
             # Extract legend numbers, colors, and average values for the current and next entry
-            legend_1, colour_1, value_1 = data_b[i][1], data_b[i][2], data_b[i][3]
-            legend_2, colour_2, value_2 = data_b[i + 1][1], data_b[i + 1][2], data_b[i + 1][3]
+            colour_1, value_1 = numerical_data[i][2], numerical_data[i][3]
+            colour_2, value_2 = numerical_data[i + 1][2], numerical_data[i + 1][3]
             
             # Calculate alpha using the formula
             A_R = (state_color[0] - colour_2[0]) / (colour_1[0] - colour_2[0])
@@ -87,7 +88,7 @@ elif map_type == "Colour Bar":
             if 0<=A and A<=1:
                 assigned_value = A*(value_1-value_2)+value_2
                 # print(state, assigned_value)
-        output_data.append((state, assigned_value, unit))
+        output_data.append((state, assigned_value, assigned_unit))
 
 df[map_title]=""
 for state, assigned_value, assigned_unit in output_data:
