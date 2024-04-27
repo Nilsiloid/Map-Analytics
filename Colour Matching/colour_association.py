@@ -7,16 +7,29 @@ import numpy as np
 import pandas as pd
 
 df = pd.read_csv('Result.csv')
-ocr_df = pd.read_csv("Colour Matching/Input_Files/OCR_output.csv")
-seg_df = pd.read_csv("Colour Matching/Input_Files/Segmentation_output.csv")
+df =  df[['State_Name']]
+# print(df)
 
-output_data = []
+def getDataForFilename(output_data, filename):
+    return [tuple for tuple in output_data if tuple[0] == filename]
+
+def getUniqueFilenames(ocr_df):
+    return ocr_df['file_name'].unique().tolist()
+
+def getMapTitleDictionary(ocr_df, filenames_list):
+    map_dict = {}
+    for filename in filenames_list:
+        filtered_rows = ocr_df[ocr_df['file_name'] == filename]
+        row = filtered_rows.iloc[0]
+        # print(row)
+        map_dict[filename] = row['map_title']
+    
+    return map_dict
+
+ocr_df = pd.read_csv("Input_Files/OCR_set1.csv")
+seg_df = pd.read_csv("Input_Files/Segmentation_set1.csv")
 data_a = []
 data_b = []
-
-mapType = ""
-mapTitle = ""
-mapName = ""
 
 rows, cols = seg_df.shape
 # iterating through each row and selecting
@@ -25,6 +38,7 @@ for row in seg_df.itertuples():
     file_name = row[1]
     state = row[2]
     color = row[6]
+    color = tuple(int(x) for x in color.strip('()').split(','))
     data_a.append((file_name, state, color))
 
 rows, cols = ocr_df.shape
@@ -35,13 +49,14 @@ for row in ocr_df.itertuples():
     map_type = row[2]
     map_title = row[3]
     color = row[4]
+    color = tuple(int(x) for x in color.strip('()').split(','))
     value = row[5]
     if value != "'N/A'":
         average_value = float(value)
     else:
         average_value = 0
     unit = row[6]
-    data_b.append(file_name, map_type, map_title, color, average_value, unit)
+    data_b.append((file_name, map_type, map_title, color, average_value, unit))
 
 # Performing colour association/matching to assign values to each state present in the map image, hence preparing data for analysis.
 # The logic used for the 2 different types of map images is different, hence using the data stored in variable map_type, we have separated out the 2 algorithms.
@@ -52,14 +67,19 @@ for row in ocr_df.itertuples():
 # In images containing Colour Bar, the colour associated with the states could lie anywhere in the colour bar and hence, we leverage the piecewise linear
 # interpolation method to obtain the value corresponding to each state.
 
+output_data = []
+
 for file_name, state, state_color in data_a:
+
+    numerical_data = []
+
     for file, map_type, map_title, color, average_value, unit in data_b:
-        numerical_data=[]
         if file_name == file:
             mapType = map_type
-            numerical_data.append(map_title, map_type, color, average_value, unit)
-    if mapType == "Discrete Legends":
+            numerical_data.append((map_title, map_type, color, average_value, unit))
+    if mapType == "discrete":
         min_distance = float('inf')
+        # print(numerical_data)
         assigned_value = None
         assigned_unit = None
         for map_title, map_type, color, average_value, unit in numerical_data:
@@ -69,9 +89,10 @@ for file_name, state, state_color in data_a:
                 min_distance = distance
                 assigned_value = average_value
                 assigned_unit = unit
-        output_data.append((state, assigned_value, assigned_unit))
-    elif mapType == "Colour Bar":
+        output_data.append((file_name, state, assigned_value, assigned_unit))
+    elif mapType == "continuous":
         assigned_value = 0
+        # print(numerical_data)
         assigned_unit = numerical_data[0][4]
         for i in range(len(numerical_data) - 1):
             # Extract legend numbers, colors, and average values for the current and next entry
@@ -79,20 +100,34 @@ for file_name, state, state_color in data_a:
             colour_2, value_2 = numerical_data[i + 1][2], numerical_data[i + 1][3]
             
             # Calculate alpha using the formula
-            A_R = (state_color[0] - colour_2[0]) / (colour_1[0] - colour_2[0])
-            A_G = (state_color[1] - colour_2[1]) / (colour_1[1] - colour_2[1])
-            A_B = (state_color[2] - colour_2[2]) / (colour_1[2] - colour_2[2])
+            A = []
+            for sc, c1, c2 in zip(state_color, colour_1, colour_2):
+                if c1 == c2:
+                    A.append(0)
+                else:
+                    A.append((sc - c2) / (c1 - c2))
 
-            A = (A_R + A_G + A_B)/3
+            # Calculating the average of non-zero A values
+            non_zero_A = [a for a in A if a != 0]
+            if non_zero_A:
+                A = sum(non_zero_A) / len(non_zero_A)
+            else:
+                A = 0
             
             if 0<=A and A<=1:
                 assigned_value = A*(value_1-value_2)+value_2
-                # print(state, assigned_value)
-        output_data.append((state, assigned_value, assigned_unit))
+        output_data.append((file_name, state, assigned_value, assigned_unit))
 
-df[map_title]=""
-for state, assigned_value, assigned_unit in output_data:
-    df.loc[df.State_Name==state, map_title] = assigned_value
-    print(df.loc[df.State_Name==state, map_title])
-print(df)
+file_list = getUniqueFilenames(ocr_df)
+map_titles = getMapTitleDictionary(ocr_df, file_list)
+
+for filename in file_list:
+    dataReqd = getDataForFilename(output_data, filename)
+    map_title = map_titles[filename]
+    df[map_title] = 0
+
+    for filename, state, assigned_value, assigned_unit in dataReqd:
+        df.loc[df['State_Name'] == state, map_title] = assigned_value
+
+# print(df['Health Insurance Coverage of Men 19-24 | KFF'])
 df.to_csv('Result.csv',index = False)

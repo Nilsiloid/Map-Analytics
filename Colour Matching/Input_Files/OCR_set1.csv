@@ -1,0 +1,28 @@
+file_name,map_type,map_title,color,value,units
+map_16.png,discrete,Health Insurance Coverage of Adults 19-24 | KFF,"(236, 218, 154)",3.7,%
+map_16.png,discrete,Health Insurance Coverage of Adults 19-24 | KFF,"(236, 171, 132)",5.4,%
+map_16.png,discrete,Health Insurance Coverage of Adults 19-24 | KFF,"(237, 124, 111)",7.35,%
+map_16.png,discrete,Health Insurance Coverage of Adults 19-24 | KFF,"(238, 77, 90)",9.5,%
+map_17.png,discrete,Health Insurance Coverage of Men 19-24 | KFF,"(87, 59, 136)",479350,u
+map_17.png,discrete,Health Insurance Coverage of Men 19-24 | KFF,"(141, 113, 163)",185200,u
+map_17.png,discrete,Health Insurance Coverage of Men 19-24 | KFF,"(195, 167, 190)",91150,u
+map_17.png,discrete,Health Insurance Coverage of Men 19-24 | KFF,"(249, 221, 218)",33750,u
+map_51.png,continuous,Health Insurance Coverage of Low Income Adults 19-64 (under 200% FPL) | KFF,"(84, 39, 143)",200,k
+map_51.png,continuous,Health Insurance Coverage of Low Income Adults 19-64 (under 200% FPL) | KFF,"(122, 114, 180)",150,k
+map_51.png,continuous,Health Insurance Coverage of Low Income Adults 19-64 (under 200% FPL) | KFF,"(174, 172, 210)",100,k
+map_51.png,continuous,Health Insurance Coverage of Low Income Adults 19-64 (under 200% FPL) | KFF,"(224, 224, 238)",50,k
+map_40.png,continuous,Health Care Expenditures per Capita by Service by State of Residence | KFF,"(8, 90, 157)",500,u
+map_40.png,continuous,Health Care Expenditures per Capita by Service by State of Residence | KFF,"(47, 145, 192)",450,u
+map_40.png,continuous,Health Care Expenditures per Capita by Service by State of Residence | KFF,"(104, 193, 202)",400,u
+map_40.png,continuous,Health Care Expenditures per Capita by Service by State of Residence | KFF,"(170, 222, 182)",350,u
+map_40.png,continuous,Health Care Expenditures per Capita by Service by State of Residence | KFF,"(214, 239, 208)",300,u
+map_40.png,continuous,Health Care Expenditures per Capita by Service by State of Residence | KFF,"(247, 252, 240)",250,u
+map_57.png,continuous,Health Insurance Coverage of Women Ages 15-49 | KFF,"(43, 148, 158)",0.65,u
+map_57.png,continuous,Health Insurance Coverage of Women Ages 15-49 | KFF,"(58, 181, 163)",0.6,u
+map_57.png,continuous,Health Insurance Coverage of Women Ages 15-49 | KFF,"(87, 208, 163)",0.55,u
+map_57.png,continuous,Health Insurance Coverage of Women Ages 15-49 | KFF,"(126, 227, 169)",0.5,u
+map_57.png,continuous,Health Insurance Coverage of Women Ages 15-49 | KFF,"(176, 242, 188)",0.45,u
+map_29.png,discrete,Health Insurance Coverage of the Nonelderly (0-64) with Incomes below 100% Federal,"(29, 79, 96)",56.8,%
+map_29.png,discrete,Health Insurance Coverage of the Nonelderly (0-64) with Incomes below 100% Federal,"(84, 129, 129)",44.4,%
+map_29.png,discrete,Health Insurance Coverage of the Nonelderly (0-64) with Incomes below 100% Federal,"(140, 179, 162)",33.6,%
+map_29.png,discrete,Health Insurance Coverage of the Nonelderly (0-64) with Incomes below 100% Federal,"(196, 230, 195)",22.1,%

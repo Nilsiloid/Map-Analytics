@@ -1,0 +1,5 @@
+File Name,Map Coordinates,Title Coordinates,Legend Coordinates,Type
+covid19_new_cases_usa-20210716_png.rf.45ae0fe9bfe76b4622618017810416a7.jpg,"(' 92', ' 147', ' 519', ' 890')","(' 32', ' 303', ' 90', ' 737')","(' 60', ' 922', ' 553', ' 1039')",continuous
+covid19_dead_usa-20210716_png.rf.560ace1f9867905b6cb55d3c26d8cb82.jpg,"(' 89', ' 137', ' 520', ' 891')","(' 33', ' 275', ' 90', ' 770')","(' 52', ' 913', ' 544', ' 1039')",continuous
+covid19_new_deaths_usa-20210716_png.rf.c5fa3294612defa57ee9e56466f6ffb1.jpg,"(' 91', ' 142', ' 518', ' 891')","(' 33', ' 299', ' 90', ' 732')","(' 61', ' 918', ' 555', ' 1008')",continuous
+covid19_confirmed_usa-20210716_png.rf.ed4aa0d768821db9da19b980461c9831.jpg,"(' 90', ' 142', ' 519', ' 891')","(' 33', ' 279', ' 90', ' 765')","(' 55', ' 919', ' 549', ' 1002')",continuous
