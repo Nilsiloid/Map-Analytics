@@ -127,7 +127,9 @@ for filename in file_list:
     df[map_title] = 0
 
     for filename, state, assigned_value, assigned_unit in dataReqd:
-        df.loc[df['State_Name'] == state, map_title] = assigned_value
+        value = str(assigned_value)+assigned_unit
+        print(value)
+        df.loc[df['State_Name'] == state, map_title] = value
 
 # print(df['Health Insurance Coverage of Men 19-24 | KFF'])
 df.to_csv('Result.csv',index = False)
