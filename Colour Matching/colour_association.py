@@ -95,26 +95,35 @@ for file_name, state, state_color in data_a:
         # print(numerical_data)
         assigned_unit = numerical_data[0][4]
         for i in range(len(numerical_data) - 1):
+            delta=0
+            flag_1=0
+            flag_2=0
+            if i==0:
+                delta=0.5
+                flag_1=1
+            elif i==len(numerical_data)-2:
+                delta=-0.5
+                flag_2=1
+                
             # Extract legend numbers, colors, and average values for the current and next entry
             colour_1, value_1 = numerical_data[i][2], numerical_data[i][3]
             colour_2, value_2 = numerical_data[i + 1][2], numerical_data[i + 1][3]
-            
+            # print(value_1)
+            # print(value_2)
+
             # Calculate alpha using the formula
             A = []
-            for sc, c1, c2 in zip(state_color, colour_1, colour_2):
-                if c1 == c2:
-                    A.append(0)
-                else:
-                    A.append((sc - c2) / (c1 - c2))
 
-            # Calculating the average of non-zero A values
-            non_zero_A = [a for a in A if a != 0]
-            if non_zero_A:
-                A = sum(non_zero_A) / len(non_zero_A)
+            for i in range(0,3):
+                if colour_1[i] != colour_2[i]:
+                    A.append((state_color[i] - colour_2[i]) / (colour_1[i] - colour_2[i]))
+        
+            if A:
+                A = sum(A) / len(A)
             else:
                 A = 0
             
-            if 0<=A and A<=1:
+            if (0+flag_2*delta)<=A and A<=(1+flag_1*delta):
                 assigned_value = A*(value_1-value_2)+value_2
         output_data.append((file_name, state, assigned_value, assigned_unit))
 
@@ -128,7 +137,7 @@ for filename in file_list:
 
     for filename, state, assigned_value, assigned_unit in dataReqd:
         value = str(assigned_value)+assigned_unit
-        print(value)
+        # print(value)
         df.loc[df['State_Name'] == state, map_title] = value
 
 # print(df['Health Insurance Coverage of Men 19-24 | KFF'])
